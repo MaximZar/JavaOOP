@@ -9,7 +9,7 @@ class FractalExplorer {
     private FractalGenerator generator;
     private Rectangle2D.Double complexRange;
 
-    public static void main() {
+    public static void main(String args[]) {
         FractalExplorer start = new FractalExplorer(800);
         start.createAndShowGUI();
         start.drawFractal();
@@ -28,10 +28,10 @@ class FractalExplorer {
         image.setLayout(new BorderLayout());
 
         // основная картинка в центер 
-        JFrame frame = new JFrame("FractalExp");
+        JFrame frame = new JFrame("Фракталы");
         frame.add(image, BorderLayout.CENTER);
         
-        JButton resetImageButton = new JButton("Reset Display");
+        JButton resetImageButton = new JButton("Сброс");
         
         // кнопка вниз
         Reset handler = new Reset();
@@ -53,8 +53,10 @@ class FractalExplorer {
     private void drawFractal() {
         for (int x = 0; x < dimensionDisplay; x+= 1){
             for (int y = 0; y < dimensionDisplay; y+= 1){
-                double xCoord = generator.getCoord(complexRange.x, complexRange.x + complexRange.width, dimensionDisplay, x);
-                double yCoord = generator.getCoord(complexRange.y, complexRange.y + complexRange.height, dimensionDisplay, y);
+                double xCoord = FractalGenerator.getCoord(complexRange.x, complexRange.x + complexRange.width,
+                        dimensionDisplay, x);
+                double yCoord = FractalGenerator.getCoord(complexRange.y, complexRange.y + complexRange.height,
+                        dimensionDisplay, y);
                 int numIters = generator.numIterations(xCoord, yCoord);
 
                 if (numIters == -1) {
@@ -80,10 +82,11 @@ class FractalExplorer {
     class Mouse extends MouseAdapter {
         public void mouseClicked(MouseEvent e) {
             int x = e.getX();
-            double xCoord = generator.getCoord(complexRange.x, complexRange.x + complexRange.width, dimensionDisplay, x);
-            
+            double xCoord = FractalGenerator.getCoord(complexRange.x, complexRange.x + complexRange.width,
+                    dimensionDisplay, x);
             int y = e.getY();
-            double yCoord = generator.getCoord(complexRange.y, complexRange.y + complexRange.height, dimensionDisplay, y);
+            double yCoord = FractalGenerator.getCoord(complexRange.y, complexRange.y + complexRange.height,
+                    dimensionDisplay, y);
             
             generator.recenterAndZoomRange(complexRange, xCoord, yCoord, 0.5);
             

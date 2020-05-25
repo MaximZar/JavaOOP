@@ -4,6 +4,7 @@ import javax.swing.JComponent;
 
 class JImageDisplay extends JComponent {
   
+  private static final long serialVersionUID = 1L;
   private BufferedImage buffer;
 
   public JImageDisplay(int width, int height) {
