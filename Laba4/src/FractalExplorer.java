@@ -27,7 +27,7 @@ class FractalExplorer {
     public void createAndShowGUI() {
         image.setLayout(new BorderLayout());
 
-        // основная картинка в центер 
+        // основная картинка в центр 
         JFrame frame = new JFrame("Фракталы");
         frame.add(image, BorderLayout.CENTER);
         
