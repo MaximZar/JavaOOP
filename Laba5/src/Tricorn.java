@@ -7,8 +7,8 @@ class Tricorn extends FractalGenerator {
   public void getInitialRange(Rectangle2D.Double range) {
     range.x = -2;
     range.y = -2;
-    range.width = 2;
-    range.height = 2;
+    range.width = 4;
+    range.height = 4;
     return;
   }
 
@@ -29,5 +29,9 @@ class Tricorn extends FractalGenerator {
     
     if (iteration == MAX_ITERATIONS) return -1;
     return iteration;
+  }
+
+  public String toString() {
+    return "Tricorn";
   }
 }

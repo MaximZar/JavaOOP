@@ -1,14 +1,14 @@
 import java.awt.geom.Rectangle2D;
 
-class BurningShip extends FractalGenerator {
+class Mandelbrot extends FractalGenerator {
 
   public static final int MAX_ITERATIONS = 2000;
 
   public void getInitialRange(Rectangle2D.Double range) {
     range.x = -2;
-    range.y = -2.5;
-    range.width = 4;
-    range.height = 4;
+    range.y = -1.5;
+    range.width = 3;
+    range.height = 3;
     return;
   }
 
@@ -17,10 +17,10 @@ class BurningShip extends FractalGenerator {
     double zR = 0;
     double zI = 0;
     double square = zR * zR + zI * zI;
-
+    
     while (iteration < MAX_ITERATIONS && square < 4) {
       double zRNew = zR * zR - zI * zI + x;
-      double zINew = 2 * Math.abs(zR) * Math.abs(zI) + y;
+      double zINew = 2 * zR * zI + y;
       zR = zRNew;
       zI = zINew;
       square = zR * zR + zI * zI;
@@ -32,6 +32,6 @@ class BurningShip extends FractalGenerator {
   }
 
   public String toString() {
-    return "BurningShip";
+    return "MandelBrot";
   }
 }
