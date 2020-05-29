@@ -1,9 +1,12 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class stores the basic state necessary for the A* algorithm to compute a
- * path across a map.  This state includes a collection of "open waypoints" and
- * another collection of "closed waypoints."  In addition, this class provides
+ * path across a map. This state includes a collection of "open waypoints" and
+ * another collection of "closed waypoints." In addition, this class provides
  * the basic operations that the A* pathfinding algorithm needs to perform its
  * processing.
  **/
@@ -11,9 +14,10 @@ public class AStarState
 {
     /** This is a reference to the map that the A* algorithm is navigating. **/
     private Map2D map;
+    private Map<Location, Waypoint> openPoints = new HashMap<Location, Waypoint> ();
+    
+    private Map<Location, Waypoint> closePoints = new HashMap<Location, Waypoint> ();
 
-    private HashMap<Location, Waypoint> openWayPoints = new HashMap<Location,Waypoint>(); //Добавление нестатичного поля в класс
-    private HashMap<Location, Waypoint> closeWayPoints = new HashMap<Location,Waypoint>();
     /**
      * Initialize a new state object for the A* pathfinding algorithm to use.
      **/
@@ -24,7 +28,6 @@ public class AStarState
 
         this.map = map;
     }
-
 
     /** Returns the map that the A* pathfinder is navigating. **/
     public Map2D getMap()
@@ -39,20 +42,22 @@ public class AStarState
      **/
     public Waypoint getMinOpenWaypoint()
     {
-        if(numOpenWaypoints() == 0)
-        return null;
-
+        if (openPoints.size() == 0) return null;
+        
+        Set openPointKeys = openPoints.keySet();
+        Iterator i = openPointKeys.iterator();
         Waypoint best = null;
-        float maxValue = Float.MAX_VALUE;
-        for (Waypoint value:openWayPoints.values())
-        {
-            float totalCost = value.getTotalCost();
-               if (totalCost < maxValue)
-               {
-                   best = value;
-                   maxValue = totalCost;
-               }
-
+        float bestCost = Float.MAX_VALUE;
+        
+        while (i.hasNext()) {
+            Location location = (Location)i.next();
+            Waypoint waypoint = openPoints.get(location);
+            float pointTotalCost = waypoint.getTotalCost();
+            if (pointTotalCost < bestCost) {
+                best = openPoints.get(location);
+                bestCost = pointTotalCost;
+            }
+            
         }
         return best;
     }
@@ -68,26 +73,19 @@ public class AStarState
      **/
     public boolean addOpenWaypoint(Waypoint newWP)
     {
-        Location location = newWP.getLocation();// Находим location новой точки
-        if (openWayPoints.containsKey(location))//Есть ли в карте заданный ключ
-        {
-            Waypoint currentWP = openWayPoints.get(location);
-            if (newWP.getPreviousCost() < currentWP.getPreviousCost())
-            {
-                openWayPoints.put(location, newWP);//Добавляем элемент в карту
-                return true;
-            }
-            return false;
+        Location location = newWP.getLocation();
+        if (openPoints.containsKey(location)) {
+            if (!(newWP.getPreviousCost() < openPoints.get(location).getPreviousCost())) return false;
         }
-        openWayPoints.put(location, newWP);
-        return true;
+        openPoints.put(location, newWP);
+        return true; 
     }
 
 
     /** Returns the current number of open waypoints. **/
     public int numOpenWaypoints()
     {
-        return openWayPoints.size();//возращает размер карты
+        return openPoints.size();
     }
 
 
@@ -97,8 +95,7 @@ public class AStarState
      **/
     public void closeWaypoint(Location loc)
     {
-        Waypoint waypoint = openWayPoints.remove(loc);
-        closeWayPoints.put(loc, waypoint);
+        closePoints.put(loc, openPoints.remove(loc));
     }
 
     /**
@@ -107,6 +104,8 @@ public class AStarState
      **/
     public boolean isLocationClosed(Location loc)
     {
-        return closeWayPoints.containsKey(loc);
+        return closePoints.containsKey(loc);
     }
+
+
 }
