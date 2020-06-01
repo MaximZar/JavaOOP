@@ -51,7 +51,7 @@ class Crawler {
 
       depthCounter += 1;
     }
-
+    
     for (URLDepthPair site:sites) {
       System.out.println(site.getDepth() + "\t" + site.getURL());
     }
@@ -110,7 +110,7 @@ class Crawler {
       String line;
       int beginIndex = 0;
       int endIndex = 0;
-
+      
       try {
         line = inLines.readLine();
       } catch (IOException e) {
@@ -137,13 +137,6 @@ class Crawler {
         urls.set(i, rebuildSite);
       }  
     }
-    // удаляем ссылки, которые не являются сайтами
-    // например tel
-    ArrayList<String> beautiUrls = new ArrayList<String>();
-    for (String site:urls) {
-      if (site.startsWith("http")) beautiUrls.add(site);
-    }
-
-    return beautiUrls;
+    return urls;
   }
 }
