@@ -74,7 +74,7 @@ class Crawler {
       return urls;
     }
     try {
-      connection.setSoTimeout(2000);
+      connection.setSoTimeout(3000);
     } catch (SocketException e) {
         System.err.println("SocketException: " + e.getMessage());
         return urls;
@@ -90,8 +90,8 @@ class Crawler {
     }
     PrintWriter printWr = new PrintWriter(outputStream, true);
     printWr.println("GET " + path + " HTTP/1.1");
-    printWr.println("host: " + host);
-    printWr.println("connection: close");
+    printWr.println("Host: " + host);
+    printWr.println("Connection: close");
     printWr.println();
 
     // получаем страницу
