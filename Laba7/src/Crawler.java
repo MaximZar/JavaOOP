@@ -24,61 +24,45 @@ class Crawler {
       return;
     }
 
-    URLDepthPair startSite = new URLDepthPair(url, depth);
+    URLDepthPair startSite = new URLDepthPair(url, 0);    
+    ArrayList<URLDepthPair> sites = new ArrayList<URLDepthPair>();
+    sites.add(startSite);
 
-    LinkedList<URLDepthPair> sites = new LinkedList<URLDepthPair>();
+    // первая глубина
+    ArrayList<String> process = getSites(startSite);
+    for (String site:process) {
+      URLDepthPair pair = new URLDepthPair(site, 1);
+      if (!sites.contains(pair)) sites.add(pair);
+    }
 
-    // LinkedList<URLDepthPair> process = getSites(startSite);
-    
-    LinkedList <URLDepthPair> inQueueURLs = new LinkedList <URLDepthPair>();
-    LinkedList <URLDepthPair> processedURLs = new LinkedList <URLDepthPair>();
-    ArrayList<String> seenURLs = new ArrayList<String>();
-    int maxDepth = 0;
-    inQueueURLs.add(new URLDepthPair(args[0],0));
-    seenURLs.add(args[0]);
-
-    while (inQueueURLs.size() != 0){
-      URLDepthPair pair = inQueueURLs.pop();
-      processedURLs.add(pair);
-      int depth1 = pair.getDepth();
-      ArrayList<String> links = new ArrayList<String>();
-      links = getSites(pair);
-      if(maxDepth > depth1){
-        for (String link:links){
-            if(!seenURLs.contains(link)){
-              inQueueURLs.add(new URLDepthPair(link,depth1 + 1));
-              seenURLs.add(link);
-          }
+    int depthCounter = 2;
+    while (depthCounter <= depth) {
+      ArrayList<String> allSitesOnDepth = new ArrayList<String>();
+      for (String siteOnDepth:process) {
+        URLDepthPair siteOnDepthPair = new URLDepthPair(siteOnDepth, depthCounter);
+        ArrayList<String> sitesOfSiteOnDepth = getSites(siteOnDepthPair);
+        for (String tmp:sitesOfSiteOnDepth) {
+          if (!allSitesOnDepth.contains(tmp)) allSitesOnDepth.add(tmp);
         }
       }
-    }
-    // while(process.size() > 0) {
-      
-    //   URLDepthPair localSite = process.pop();
-    //   if (localSite.getURL().startsWith("/")) localSite.setURL(startSite.getURL() + localSite.getURL().substring(1));
-    //   sites.add(localSite);
-    //   LinkedList<URLDepthPair> localProcess = getSites(localSite);
-    //   System.out.println("LLLL: " + localSite.getURL());
-    //   process.addAll(localProcess);
-    //   sites.addAll(process);
-    // }
+      for (String site:allSitesOnDepth) {
+        if (!sites.contains(site)) sites.add(new URLDepthPair(site, depthCounter));
+      }
 
-    // for (URLDepthPair pair:sites) {
-    //   int depthForUsers = Math.abs(pair.getDepth() - depth);
-    //   System.out.println(depthForUsers + "\t" + pair.getURL());
-    // } 
-    for (String web:seenURLs) {
-      System.out.println(web);
+      depthCounter += 1;
     }
 
+    for (URLDepthPair site:sites) {
+      System.out.println(site.getDepth() + "\t" + site.getURL());
+    }
   }
 
-  public static ArrayList<String> getSites(URLDepthPair site) {
+  public static ArrayList<String> getSites(URLDepthPair siteForAnalysis) {
     ArrayList<String> urls = new ArrayList<String>();
 
     // подключаемся к сайту
-    String host = site.getHost();
-    String path = site.getPath();
+    String host = siteForAnalysis.getHost();
+    String path = siteForAnalysis.getPath();
     Socket connection;
     try {
       connection = new Socket(host, 80);
@@ -123,26 +107,43 @@ class Crawler {
 
     // ищем все link`и
     while(true) {
-      String string;
+      String line;
       int beginIndex = 0;
       int endIndex = 0;
 
       try {
-        string = inLines.readLine();
+        line = inLines.readLine();
       } catch (IOException e) {
         System.out.println("IOException: " + e.getMessage());
-        return urls;
+        break;
       }
-      if(string == null) return urls;
+
+      if(line == null) break;
       while (true){
-        beginIndex = string.indexOf(linkHTMLStart,beginIndex);
-        if(beginIndex == -1)break;
+        beginIndex = line.indexOf(linkHTMLStart,beginIndex);
+        if(beginIndex == -1) break;
         beginIndex += linkHTMLStart.length();
-        endIndex = string.indexOf(linkHTMLEnd, beginIndex);
-        urls.add(string.substring(beginIndex,endIndex));
+        endIndex = line.indexOf(linkHTMLEnd, beginIndex);
+        urls.add(line.substring(beginIndex,endIndex));
         beginIndex = endIndex;
       }
     }
 
+    // проверяем правильность введения ссылки (чтобы потом можно было смотреть на следующей глубине)
+    // ссылки формата /courses приводим к формату ...hexlet.io/courses
+    for (int i = 0; i < urls.size(); i += 1) {
+      if (urls.get(i).startsWith("/")) {
+        String rebuildSite = siteForAnalysis.getURL() + urls.get(i).substring(1);
+        urls.set(i, rebuildSite);
+      }  
+    }
+    // удаляем ссылки, которые не являются сайтами
+    // например tel
+    ArrayList<String> beautiUrls = new ArrayList<String>();
+    for (String site:urls) {
+      if (site.startsWith("http")) beautiUrls.add(site);
+    }
+
+    return beautiUrls;
   }
 }
