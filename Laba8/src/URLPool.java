@@ -15,7 +15,7 @@ public class URLPool {
   }
 
   public synchronized void addURL(URLDepthPair pair) {
-    unfinished.addLast(pair);
+    if (!haveElement(pair)) unfinished.addLast(pair);
     if (waitingThreads > 0) waitingThreads--;
     this.notify();
   }
@@ -32,6 +32,18 @@ public class URLPool {
     URLDepthPair depthPair = unfinished.removeFirst();
     finished.add(depthPair);
     return depthPair;
+  }
+  public boolean haveElement(URLDepthPair obj) {
+    boolean have = false;
+    for (URLDepthPair pair:finished) {
+      if (obj.getURL().equals(pair.getURL())) 
+        have = true;
+    }
+    for (URLDepthPair pair:unfinished) {
+      if (obj.getURL().equals(pair.getURL())) 
+        have = true;
+    }
+    return have;
   }
   public synchronized int getMaxDepth() {
     return maxDepth;
